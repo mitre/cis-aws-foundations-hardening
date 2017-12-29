@@ -1,0 +1,37 @@
+---
+driver:
+  name: terraform
+  variables:
+    aws_ssh_key_name: "<%= ENV['AWS_SSH_KEY_ID'] %>"
+    aws_access_key: "<%= ENV['AWS_ACCESS_KEY_ID'] %>"
+    aws_secret_key: "<%= ENV['AWS_SECRET_ACCESS_KEY'] %>"
+    aws_instance_type: "<%= ENV['AWS_DEFAULT_INSTANCE_TYPE'] %>"
+    aws_subnet_id: "<%= ENV['AWS_SUBNET_ID'] %>"
+    aws_region: "<%= ENV['AWS_REGION'] %>"
+    aws_ami_id: "<%= ENV['AWS_AMI_ID'] %>"
+    aws_security_group: "<%= ENV['AWS_SG_ID'] %>"
+  
+  root_module_directory: ./tf_build
+
+provisioner:
+  name: terraform
+
+platforms:
+  - name: centos-7
+
+transport:
+  name: ssh
+  ssh_key: "<%= ENV['AWS_SSH_KEY_ID'] %>"
+
+verifier:
+  name: terraform
+  #format: json
+  #output: "%{platform}_%{suite}-<%= Time.now.iso8601 %>.json"
+  groups:
+    - name: cis-aws-foundations-baseline
+
+suites:
+  - name: cis-aws-foundations-baseline
+
+
+
