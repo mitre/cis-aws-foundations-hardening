@@ -16,13 +16,13 @@ This will help you setup and validate an AWS VPC/ENV ...
 
 ## Pre-Checks
 
-A. Use `tfenv` to switch to your `tf v0.10.0` environment
-B. Install any needed gems via `bundle install`
-C. Use the `pre-kitchen.rb` script to ensure you have all the env_vars setup as needed.
+A. Use `tfenv` to switch to your `tf v0.10.0` environment  
+B. Install any needed gems via `bundle install`  
+C. Use the `pre-kitchen.rb` script to ensure you have all the env_vars setup as needed.  
 ```
 ruby pre-kitchen.rb
 ```
-D. Go to the 'Usage' section
+D. Go to the 'Usage' section  
 
 ## Usage
 
