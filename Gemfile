@@ -2,8 +2,7 @@
 
 source 'https://rubygems.org'
 
-gem 'test-kitchen'
+gem 'kitchen-terraform', "~> 3.0.0"
+gem 'test-kitchen', "~> 1.16.0"
 gem 'inspec'
 gem 'kitchen-inspec'
-gem 'kitchen-terraform'
-gem 'awspec'
