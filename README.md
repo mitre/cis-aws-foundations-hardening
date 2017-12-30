@@ -7,11 +7,12 @@ A terraform / kitchen-terraform hardening baseline the CIS AWS Foundations Bench
 This will help you setup and validate an AWS VPC/ENV ...
 
 ### Tech Used
-- kitchen.ci
+- kitchen-terraform (v3.0.0)
+- test-kitchen (v.1.60.0)
 - inspec.io
-- terraform
-- tfenv ( for pinning to tf-v0.10.0 and aws-1.1 )
-- awscli
+- terraform (v0.10.0)
+- tfenv
+- awscli (v1.1)
 
 ## Pre-Checks
 
