@@ -1,8 +1,14 @@
-# encoding: utf-8
-
 source 'https://rubygems.org'
 
-gem 'kitchen-terraform', "~> 3.0.0"
-gem 'test-kitchen', "~> 1.16.0"
-gem 'inspec'
-gem 'kitchen-inspec'
+gem 'inspec', '~> 1'
+gem 'aws-sdk', '~> 2'
+
+group :tools do
+  gem 'github_changelog_generator', '~> 1.12.0'
+end
+
+group :test do
+  gem 'rake'
+  gem 'rubocop', '~> 0.51.0'
+  gem 'minitest', '5.10.1'
+end
