@@ -39,7 +39,7 @@ namespace :test do
   end
   
   namespace :aws do
-    ['default', 'minimal'].each do |account|
+    ['default', 'minimal', 'cis'].each do |account|
       integration_dir = File.join(project_dir, 'test', 'integration', account)
       attribute_file = File.join(integration_dir, '.attribute.yml')
       
@@ -91,5 +91,5 @@ namespace :test do
       end
     end
   end
-  task aws: [:'aws:default', :'aws:minimal']  
+  task aws: [:'aws:default', :'aws:minimal', :'aws:cis']  
 end
