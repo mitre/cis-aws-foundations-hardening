@@ -3,8 +3,8 @@
 #=================================================================#
 
 resource "aws_s3_bucket" "public" {
-  bucket        = "inspec-testing-public-${terraform.env}.chef.io"
-  acl           = "public-read"
+  bucket = "inspec-testing-public-${terraform.env}.chef.io"
+  acl    = "public-read"
 }
 
 output "s3_bucket_public_name" {
@@ -16,8 +16,8 @@ output "s3_bucket_public_region" {
 }
 
 resource "aws_s3_bucket" "private" {
-  bucket        = "inspec-testing-private-${terraform.env}.chef.io"
-  acl           = "private"
+  bucket = "inspec-testing-private-${terraform.env}.chef.io"
+  acl    = "private"
 }
 
 output "s3_bucket_private_name" {
@@ -25,8 +25,8 @@ output "s3_bucket_private_name" {
 }
 
 resource "aws_s3_bucket" "auth" {
-  bucket        = "inspec-testing-auth-${terraform.env}.chef.io"
-  acl           = "authenticated-read"
+  bucket = "inspec-testing-auth-${terraform.env}.chef.io"
+  acl    = "authenticated-read"
 }
 
 output "s3_bucket_auth_name" {
@@ -34,8 +34,8 @@ output "s3_bucket_auth_name" {
 }
 
 resource "aws_s3_bucket" "private_acl_public_policy" {
-  bucket        = "inspec-testing-mixed-01-${terraform.env}.chef.io"
-  acl           = "private"
+  bucket = "inspec-testing-mixed-01-${terraform.env}.chef.io"
+  acl    = "private"
 }
 
 output "s3_bucket_private_acl_public_policy_name" {
@@ -47,7 +47,8 @@ output "s3_bucket_private_acl_public_policy_name" {
 #=================================================================#
 resource "aws_s3_bucket_policy" "allow" {
   bucket = "${aws_s3_bucket.public.id}"
-  policy =<<POLICY
+
+  policy = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -65,7 +66,8 @@ POLICY
 
 resource "aws_s3_bucket_policy" "deny" {
   bucket = "${aws_s3_bucket.private.id}"
-  policy =<<POLICY
+
+  policy = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -83,7 +85,8 @@ POLICY
 
 resource "aws_s3_bucket_policy" "allow-02" {
   bucket = "${aws_s3_bucket.private_acl_public_policy.id}"
-  policy =<<POLICY
+
+  policy = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [

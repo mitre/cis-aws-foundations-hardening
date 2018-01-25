@@ -22,6 +22,16 @@ class AwsIamRootUser < Inspec.resource(1)
     summary_account['AccountMFAEnabled'] == 1
   end
 
+  def has_virtual_mfa_devices?
+    virtual_mfa_devices.each do |device|
+      if %r{arn:aws:iam::\d{12}:mfa\/root-account-mfa-device} =~
+        device['serial_number']
+        return true
+      end
+    end
+    false
+  end
+  
   def to_s
     'AWS Root-User'
   end

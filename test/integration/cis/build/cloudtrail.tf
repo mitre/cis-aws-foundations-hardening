@@ -1,6 +1,21 @@
+resource "aws_s3_bucket" "log_bucket" {
+  bucket        = "inspec-testing-log-bucket-${terraform.env}.chef.io"
+  force_destroy = true
+  acl           = "log-delivery-write"
+}
+
+output "s3_bucket_log_bucket_name" {
+  value = "${aws_s3_bucket.log_bucket.id}"
+}
+
 resource "aws_s3_bucket" "trail_1_bucket" {
   bucket        = "${terraform.env}-trail-01-bucket"
   force_destroy = true
+
+  logging {
+    target_bucket = "${aws_s3_bucket.log_bucket.id}"
+    target_prefix = "log/"
+  }
 
   policy = <<POLICY
 {
@@ -188,10 +203,10 @@ resource "aws_cloudtrail" "trail_1" {
   kms_key_id                 = "${aws_kms_key.trail_1_key.arn}"
 }
 
-resource "aws_cloudtrail" "trail_2" {
-  name           = "${terraform.env}-trail-02"
-  s3_bucket_name = "${aws_s3_bucket.trail_1_bucket.id}"
-}
+# resource "aws_cloudtrail" "trail_2" {
+#   name           = "${terraform.env}-trail-02"
+#   s3_bucket_name = "${aws_s3_bucket.trail_1_bucket.id}"
+# }
 
 output "cloudtrail_trail_1_name" {
   value = "${aws_cloudtrail.trail_1.name}"
@@ -217,14 +232,17 @@ output "cloudtrail_trail_1_cloud_watch_logs_role_arn" {
   value = "${aws_iam_role.cloud_watch_logs_role.arn}"
 }
 
-output "cloudtrail_trail_2_s3_bucket_name" {
-  value = "${aws_s3_bucket.trail_1_bucket.id}"
-}
+# output "cloudtrail_trail_2_s3_bucket_name" {
+#   value = "${aws_s3_bucket.trail_1_bucket.id}"
+# }
 
-output "cloudtrail_trail_2_name" {
-  value = "${aws_cloudtrail.trail_2.name}"
-}
 
-output "cloudtrail_trail_2_arn" {
-  value = "${aws_cloudtrail.trail_2.arn}"
-}
+# output "cloudtrail_trail_2_name" {
+#   value = "${aws_cloudtrail.trail_2.name}"
+# }
+
+
+# output "cloudtrail_trail_2_arn" {
+#   value = "${aws_cloudtrail.trail_2.arn}"
+# }
+
