@@ -24,7 +24,9 @@ You will need to set the following env_vars for this to work.
 
 1. Switch to your Terraform 0.10.0 environment  
 2. Ensure your environment variables are configured (see above)  
-3. Run Bundle Command
+3. From cis-aws-foundations-hardening directory run:
+- ``` git clone https://github.com/aaronlippold/cis-aws-foundations-baseline.git test/integration/cis/verify```
+4. Run Bundle Command
 - ```bundle exec rake test:aws:setup:cis```
 - ```bundle exec rake test:aws:run:cis```
 - ```bundle exec rake test:aws:cleanup:cis```
