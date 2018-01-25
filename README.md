@@ -31,8 +31,13 @@ You will need to set the following env_vars for this to work.
 - ```bundle exec rake test:aws:run:cis```
 - ```bundle exec rake test:aws:cleanup:cis```
 
+## Known Issue:
 
-## Quetions:
+SNS Topics:
+
+- It seems there is a slight delay in Terraform SNS Topics to take effect, so please run ```bundle exec rake test:aws:run:cis``` a few minutes after running the ```bundle exec rake test:aws:setup:cis``` command.
+
+## Questions:
 
 - see: https://newcontext-oss.github.io/kitchen-terraform/tutorials/amazon_provider_ec2.html
 - see: https://github.com/chef/inspec-aws

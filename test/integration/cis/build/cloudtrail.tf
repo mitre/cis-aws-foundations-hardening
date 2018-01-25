@@ -110,7 +110,8 @@ resource "aws_cloudwatch_log_group" "trail_1_log_group" {
 
 resource "aws_kms_key" "trail_1_key" {
   description             = "${terraform.env}-trail-01-key"
-  deletion_window_in_days = 10
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
 
   policy = <<POLICY
 {
