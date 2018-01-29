@@ -49,6 +49,27 @@ class AwsIamPolicy < Inspec.resource(1)
     attached_roles.include?(role_name)
   end
 
+  filter = FilterTable.create
+  filter.add_accessor(:entries)
+        .add_accessor(:where)
+        .add(:exists?) { |x| !x.entries.empty? }
+        .add(:effects, field: :Effect)
+        .add(:actions, field: :Action)
+        .add(:resources, field: :Resource)
+        .add(:conditions, field: :Condition)
+        .add(:sids, field: :Sid)
+        .add(:principals, field: :Principal)
+  filter.connect(self, :document)
+
+  def document
+    return unless @exists
+    document = URI.unescape(AwsIamPolicy::BackendFactory.create.get_policy_version({
+      policy_arn: @arn,
+      version_id: @default_version_id,
+    }).policy_version.document)
+    JSON.parse(document,:symbolize_names => true)[:Statement]
+  end
+
   private
 
   def validate_params(raw_params)
@@ -108,6 +129,10 @@ class AwsIamPolicy < Inspec.resource(1)
 
       def list_entities_for_policy(criteria)
         AWSConnection.new.iam_client.list_entities_for_policy(criteria)
+      end
+
+      def get_policy_version(criteria)
+        AWSConnection.new.iam_client.get_policy_version(criteria)
       end
     end
   end

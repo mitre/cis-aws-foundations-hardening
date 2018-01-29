@@ -27,6 +27,12 @@ class AwsCloudTrailTrail < Inspec.resource(1)
     !kms_key_id.nil?
   end
 
+  def status
+    query = { name: @trail_name }
+    data = AwsCloudTrailTrail::BackendFactory.create.get_trail_status(query).to_h
+    Hashie::Mash.new(data)
+  end
+
   private
 
   def validate_params(raw_params)
@@ -68,6 +74,12 @@ class AwsCloudTrailTrail < Inspec.resource(1)
 
       def describe_trails(query)
         AWSConnection.new.cloudtrail_client.describe_trails(query)
+      end
+
+      def get_trail_status(query)
+        AWSConnection.new.cloudtrail_client.get_trail_status(query)
+      rescue Aws::CloudTrail::Errors::TrailNotFoundException
+        return {}
       end
     end
   end

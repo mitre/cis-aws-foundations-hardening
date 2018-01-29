@@ -24,6 +24,30 @@ class AwsIamUser < Inspec.resource(1)
     username
   end
 
+  def policies
+    begin
+      BackendFactory.create.list_user_policies(user_name: username).policy_names
+    rescue Aws::IAM::Errors::NoSuchEntity
+      []
+    end
+  end
+
+  def attached_policies
+    begin
+      BackendFactory.create.list_attached_user_policies(user_name: username).attached_policies
+    rescue Aws::IAM::Errors::NoSuchEntity
+      []
+    end
+  end
+
+  def has_policies?
+    !policies.empty?
+  end
+
+  def has_attached_policies?
+    !attached_policies.empty?
+  end
+
   def to_s
     "IAM User #{username}"
   end
@@ -103,6 +127,14 @@ class AwsIamUser < Inspec.resource(1)
 
       def list_access_keys(criteria)
         AWSConnection.new.iam_client.list_access_keys(criteria)
+      end
+
+      def list_attached_user_policies(criteria)
+        AWSConnection.new.iam_client.list_attached_user_policies(criteria)
+      end
+
+      def list_user_policies(criteria)
+        AWSConnection.new.iam_client.list_user_policies(criteria)
       end
     end
   end
