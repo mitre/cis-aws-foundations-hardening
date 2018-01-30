@@ -11,6 +11,7 @@ class AwsIamPolicy < Inspec.resource(1)
 
   attr_reader :arn, :default_version_id, :attachment_count
 
+
   def to_s
     "Policy #{@policy_name}"
   end
@@ -49,25 +50,17 @@ class AwsIamPolicy < Inspec.resource(1)
     attached_roles.include?(role_name)
   end
 
-  filter = FilterTable.create
-  filter.add_accessor(:entries)
-        .add_accessor(:where)
-        .add(:exists?) { |x| !x.entries.empty? }
-        .add(:effects, field: :Effect)
-        .add(:actions, field: :Action)
-        .add(:resources, field: :Resource)
-        .add(:conditions, field: :Condition)
-        .add(:sids, field: :Sid)
-        .add(:principals, field: :Principal)
-  filter.connect(self, :document)
-
   def document
-    return unless @exists
-    document = URI.unescape(AwsIamPolicy::BackendFactory.create.get_policy_version({
+    return PolicyDocumentFilter.new({}) unless @exists
+
+    policy_data = URI.unescape(AwsIamPolicy::BackendFactory.create.get_policy_version({
       policy_arn: @arn,
       version_id: @default_version_id,
     }).policy_version.document)
-    JSON.parse(document,:symbolize_names => true)[:Statement]
+
+    document = JSON.parse(policy_data,:symbolize_names => true)[:Statement]
+
+    PolicyDocumentFilter.new(document, @policy_name)
   end
 
   private
@@ -135,5 +128,30 @@ class AwsIamPolicy < Inspec.resource(1)
         AWSConnection.new.iam_client.get_policy_version(criteria)
       end
     end
+  end
+end
+
+class PolicyDocumentFilter
+  filter = FilterTable.create
+  filter.add_accessor(:entries)
+        .add_accessor(:where)
+        .add(:exists?) { |x| !x.entries.empty? }
+        .add(:exists?) { attachment_count }
+        .add(:effects, field: :Effect)
+        .add(:actions, field: :Action)
+        .add(:resources, field: :Resource)
+        .add(:conditions, field: :Condition)
+        .add(:sids, field: :Sid)
+        .add(:principals, field: :Principal)
+  filter.connect(self, :document)
+  
+  def to_s
+    "Policy #{@policy_name}"
+  end
+
+  attr_reader :document
+  def initialize(document, policy_name)
+    @document = document
+    @policy_name = policy_name
   end
 end
