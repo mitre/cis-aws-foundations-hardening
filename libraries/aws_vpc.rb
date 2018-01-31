@@ -16,11 +16,24 @@ class AwsVpc < Inspec.resource(1)
     "VPC #{vpc_id}"
   end
 
-  [:cidr_block, :dhcp_options_id, :state, :vpc_id, :instance_tenancy, :is_default].each do |property|
+  [:cidr_block, :dhcp_options_id, :state, :vpc_id, :instance_tenancy, :is_default,].each do |property|
     define_method(property) do
       @vpc[property]
     end
   end
+
+  def flow_logs
+    return unless @exists
+    backend = AwsVpc::BackendFactory.create
+    filter = { name: "resource-id", values: [@vpc_id],}
+    resp = backend.describe_flow_logs({filter: [filter]})
+  end
+
+  def flow_logs_enabled?
+    return unless @exists
+    !flow_logs.empty?
+  end
+
 
   alias default? is_default
 
@@ -63,6 +76,10 @@ class AwsVpc < Inspec.resource(1)
 
       def describe_vpcs(query)
         AWSConnection.new.ec2_client.describe_vpcs(query)
+      end
+
+      def describe_flow_logs(query)
+        AWSConnection.new.ec2_client.describe_flow_logs(query)
       end
     end
   end

@@ -13,6 +13,9 @@ class AwsVpcs < Inspec.resource(1)
   filter = FilterTable.create
   filter.add_accessor(:entries)
         .add(:exists?) { |x| !x.entries.empty? }
+        .add(:vpc_ids, field: :vpc_id)
+        .add(:is_default, field: :is_default)
+        .add(:state, field: :state)
   filter.connect(self, :vpc_data)
 
   def vpc_data

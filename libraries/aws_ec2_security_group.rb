@@ -10,10 +10,43 @@ class AwsEc2SecurityGroup < Inspec.resource(1)
   '
 
   include AwsResourceMixin
-  attr_reader :description, :group_id, :group_name, :vpc_id
+  attr_reader :description, :group_id, :group_name, :vpc_id, :ingress_rules, :egress_rules
 
   def to_s
     "EC2 Security Group #{@group_id}"
+  end
+
+  # Underlying FilterTable implementation.
+  filter = FilterTable.create
+  filter.add_accessor(:where)
+        .add_accessor(:entries)
+        .add(:type, field: :type)
+        .add(:group_ids, field: :group_id)
+        .add(:from_port, field: :from_port)
+        .add(:to_port, field: :to_port)
+        .add(:ip_protocol, field: :ip_protocol)
+        .add(:ip_ranges, field: :ip_ranges)
+        .add(:ipv_6_ranges, field: :ipv_6_ranges)
+  filter.connect(self, :access_key_data)
+
+  def access_key_data
+    @table
+  end
+
+  def open_on_port?(port)
+    @ingress_rules.each do |rule|
+      # Will skip unless the port is equal to the from port or
+      # the rule allows all traffic, or it is between the to and from port.
+      next unless port == rule.from_port \
+                  or (rule.to_port.nil? and rule.from_port.nil?) \
+                  or (!rule.to_port.nil? and port.between?(rule.from_port, rule.to_port))
+      rule.ip_ranges.each do |ip_range|
+        if ip_range.cidr_ip == '0.0.0.0/0' or ip_range.cidr_ip == 'ALL'
+          return true
+        end
+      end
+    end
+    false
   end
 
   private
@@ -55,6 +88,8 @@ class AwsEc2SecurityGroup < Inspec.resource(1)
       :group_id,
       :group_name,
       :vpc_id,
+      :ingress_rules,
+      :egress_rules,
     ].each do |criterion_name|
       val = instance_variable_get("@#{criterion_name}".to_sym)
       next if val.nil?
@@ -66,17 +101,33 @@ class AwsEc2SecurityGroup < Inspec.resource(1)
       )
     end
     dsg_response = backend.describe_security_groups(filters: filters)
-
     if dsg_response.security_groups.empty?
       @exists = false
       return
     end
 
     @exists = true
-    @description = dsg_response.security_groups[0].description
-    @group_id   = dsg_response.security_groups[0].group_id
-    @group_name = dsg_response.security_groups[0].group_name
-    @vpc_id     = dsg_response.security_groups[0].vpc_id
+    @description   = dsg_response.security_groups[0].description
+    @group_id      = dsg_response.security_groups[0].group_id
+    @group_name    = dsg_response.security_groups[0].group_name
+    @vpc_id        = dsg_response.security_groups[0].vpc_id
+    @ingress_rules = dsg_response.security_groups[0].ip_permissions
+    @egress_rules  = dsg_response.security_groups[0].ip_permissions_egress
+    populate_ingress_egress_rules
+  end
+
+  def populate_ingress_egress_rules
+    @table = []
+    @ingress_rules.each do |rule|
+      rule = Hash[rule.each_pair.to_a]
+      rule[:type] = 'ingress'
+      @table.push(rule)
+    end
+    @egress_rules.each do |rule|
+      rule = Hash[rule.each_pair.to_a]
+      rule[:type] = 'egress'
+      @table.push(rule)
+    end
   end
 
   class Backend
