@@ -11,7 +11,16 @@ class AwsSnsTopic < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-  attr_reader :arn, :confirmed_subscription_count
+  attr_reader :arn, :confirmed_subscription_count, :region, :owner, :aws_response
+
+  def subscriptions
+    return unless @exists
+    AwsSnsTopic::BackendFactory.create.list_subscriptions_by_topic(topic_arn: @arn).subscriptions.map(&:subscription_arn)
+  end
+
+  def to_s
+    'SNS Topic'
+  end
 
   private
 
@@ -31,11 +40,13 @@ class AwsSnsTopic < Inspec.resource(1)
   end
 
   def fetch_from_aws
-    aws_response = AwsSnsTopic::BackendFactory.create.get_topic_attributes(topic_arn: @arn).attributes
+    @aws_response = AwsSnsTopic::BackendFactory.create.get_topic_attributes(topic_arn: @arn).attributes
     @exists = true
 
     # The response has a plain hash with CamelCase plain string keys and string values
-    @confirmed_subscription_count = aws_response['SubscriptionsConfirmed'].to_i
+    @owner = @aws_response['Owner']
+    @region = @aws_response['TopicArn'].scan(/^arn:aws:sns:([\w\-]+):\d{12}:[\S]+$/).flatten.first
+    @confirmed_subscription_count = @aws_response['SubscriptionsConfirmed'].to_i
   rescue Aws::SNS::Errors::NotFound
     @exists = false
   end
@@ -47,6 +58,10 @@ class AwsSnsTopic < Inspec.resource(1)
 
       def get_topic_attributes(criteria)
         AWSConnection.new.sns_client.get_topic_attributes(criteria)
+      end
+
+      def list_subscriptions_by_topic(criteria)
+        AWSConnection.new.sns_client.list_subscriptions_by_topic(criteria)
       end
     end
   end

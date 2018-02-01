@@ -64,4 +64,8 @@ class AWSConnection
   def kms_client
     @kms_client ||= Aws::KMS::Client.new
   end
+
+  def configservice_client
+    @kms_client ||= Aws::ConfigService::Client.new
+  end
 end
