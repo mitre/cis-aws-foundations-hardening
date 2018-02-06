@@ -50,7 +50,7 @@ class AwsIamPolicy < Inspec.resource(1)
   end
 
   def document
-    return PolicyDocumentFilter.new({}) unless @exists
+    return PolicyDocumentFilter.new unless @exists
 
     policy_data = CGI.unescape(AwsIamPolicy::BackendFactory.create.get_policy_version(
       {
@@ -150,7 +150,7 @@ class PolicyDocumentFilter
   end
 
   attr_reader :document
-  def initialize(document, policy_name)
+  def initialize(document=nil, policy_name=nil)
     @document = document
     @policy_name = policy_name
   end

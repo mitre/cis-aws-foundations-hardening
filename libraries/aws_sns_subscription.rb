@@ -38,10 +38,10 @@ class AwsSnsSubscription < Inspec.resource(1)
       allowed_scalar_type: String,
     )
     # Validate the ARN
-    unless validated_params[:arn] =~ /^arn:aws:sns:[\w\-]+:\d{12}:[\S]+$/
-      raise ArgumentError, 'Malformed ARN for SNS Subscriptions.  Expected an ARN of the form ' \
-                           "'arn:aws:sns:REGION:ACCOUNT-ID:TOPIC-NAME'"
-    end
+    # unless validated_params[:arn] =~ /^arn:aws:sns:[\w\-]+:\d{12}:[\S]+$/
+    #   raise ArgumentError, 'Malformed ARN for SNS Subscriptions.  Expected an ARN of the form ' \
+    #                        "'arn:aws:sns:REGION:ACCOUNT-ID:TOPIC-NAME'"
+    # end
     validated_params
   end
 

@@ -41,4 +41,8 @@ class AwsIamRootUser < Inspec.resource(1)
   def summary_account
     @summary_account ||= @client.get_account_summary.summary_map
   end
+
+  def virtual_mfa_devices
+    @client.list_virtual_mfa_devices.virtual_mfa_devices
+  end
 end

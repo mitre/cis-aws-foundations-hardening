@@ -10,7 +10,7 @@ class AwsIamRole < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-  attr_reader :role_name, :description
+  attr_reader :role_name, :description,
 
   def inline_policies
     return [] unless @exists
@@ -20,6 +20,22 @@ class AwsIamRole < Inspec.resource(1)
   def attached_policies
     return [] unless @exists
     AwsIamRole::BackendFactory.create.list_attached_role_policies(role_name: role_name).attached_policies.map(&:policy_name)
+  end
+
+
+  def assume_role_policy_document
+    return AssumePolicyDocumentFilter.new({}) unless @exists
+
+    policy_data = CGI.unescape(@assume_role_policy_document) #CGI.unescape(AwsIamPolicy::BackendFactory.create.get_policy_version(
+    #   {
+    #     policy_arn: @arn,
+    #     version_id: @default_version_id,
+    #   },
+    # ).policy_version.document)
+
+    document = JSON.parse(policy_data, symbolize_names: true)[:Statement]
+
+    AssumePolicyDocumentFilter.new(document)
   end
 
   private
@@ -47,6 +63,7 @@ class AwsIamRole < Inspec.resource(1)
     end
     @exists = true
     @description = role_info.role.description
+    @assume_role_policy_document = role_info.role.assume_role_policy_document
   end
 
   # Uses the SDK API to really talk to AWS
@@ -65,5 +82,28 @@ class AwsIamRole < Inspec.resource(1)
         AWSConnection.new.iam_client.list_attached_role_policies(query)
       end
     end
+  end
+end
+
+class AssumePolicyDocumentFilter
+  filter = FilterTable.create
+  filter.add_accessor(:entries)
+        .add_accessor(:where)
+        .add(:exists?) { |x| !x.entries.empty? }
+        .add(:effects, field: :Effect)
+        .add(:actions, field: :Action)
+        .add(:resources, field: :Resource)
+        .add(:conditions, field: :Condition)
+        .add(:sids, field: :Sid)
+        .add(:principals, field: :Principal)
+  filter.connect(self, :document)
+
+  def to_s
+    "Assume Role Rolicy"
+  end
+
+  attr_reader :document
+  def initialize(document)
+    @document = document
   end
 end

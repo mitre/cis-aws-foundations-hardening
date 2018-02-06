@@ -11,12 +11,14 @@ class AWSConnection
     creds = nil
     if ENV['AWS_PROFILE']
       creds = Aws::SharedCredentials.new(profile_name: ENV['AWS_PROFILE'])
-    else
+    elsif ENV['AWS_ACCESS_KEY_ID'] and ENV['AWS_SECRET_ACCESS_KEY']
       creds = Aws::Credentials.new(
         ENV['AWS_ACCESS_KEY_ID'],
         ENV['AWS_SECRET_ACCESS_KEY'],
         ENV['AWS_SESSION_TOKEN'],
       )
+    else
+      creds = Aws::InstanceProfileCredentials.new
     end
     opts = {
       region: ENV['AWS_REGION'] || ENV['AWS_DEFAULT_REGION'],
@@ -35,6 +37,10 @@ class AWSConnection
 
   def cloudwatch_logs_client
     @cloudwatch_logs_client ||= Aws::CloudWatchLogs::Client.new
+  end
+  
+  def configservice_client
+    @configservice_client ||= Aws::ConfigService::Client.new
   end
 
   def cloudtrail_client
@@ -63,9 +69,5 @@ class AWSConnection
 
   def kms_client
     @kms_client ||= Aws::KMS::Client.new
-  end
-
-  def configservice_client
-    @kms_client ||= Aws::ConfigService::Client.new
   end
 end
