@@ -40,12 +40,12 @@ You will need to set the following env_vars for this to work.
 3. Run Test kitchen
 
   **A.** **Run Each Phase of the Test Suite**  
-  a. `bundle exec kitchen create`  
-  b. `bundle exec kitchen converge`  
-  c. `bundle exec kitchen verify`  
-  d. `bundle exec kitchen destroy`  
+  a. `bundle exec kitchen create cis-setup`  
+  b. `bundle exec kitchen converge cis-setup`  
+  c. `bundle exec kitchen verify cis-setup`  
+  d. `bundle exec kitchen destroy cis-setup`  
   **B.** **Run the Fully Automated Suite**   
-  a. `bundle exec kitchen test --destroy=always`
+  a. `bundle exec kitchen test cis-setup --destroy=always`
 
 ## Quetions:
 
