@@ -1,0 +1,4 @@
+name: inspec-aws-minimal-tests
+depends:
+  - name: aws-resource-pack
+    git: https://github.com/chef/inspec-aws.git
