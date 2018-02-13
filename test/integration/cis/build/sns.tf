@@ -7,7 +7,7 @@
 # sns_topic_2 has no subscriptions
 
 resource "aws_sns_topic" "sns_test_topic_1" {
-  name = "${terraform.env}-test-topic-01"
+  name = "${var.prefix}-test-topic-01"
 }
 
 output "sns_topic_recall_hit_arn" {
@@ -15,7 +15,7 @@ output "sns_topic_recall_hit_arn" {
 }
 
 resource "aws_sqs_queue" "sqs_test_queue_1" {
-  name = "${terraform.env}-test-queue-01"
+  name = "${var.prefix}-test-queue-01"
 }
 
 resource "aws_sns_topic_subscription" "sqs_test_queue_01_sub" {
@@ -29,7 +29,7 @@ output "sns_topic_with_subscription_arn" {
 }
 
 resource "aws_sns_topic" "sns_test_topic_2" {
-  name = "${terraform.env}-test-topic-02"
+  name = "${var.prefix}-test-topic-02"
 }
 
 output "sns_topic_no_subscription_arn" {

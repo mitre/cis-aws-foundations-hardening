@@ -1,5 +1,5 @@
 resource "aws_iam_group" "with_awssupportaccess" {
-  name = "${terraform.env}.with_awssupportaccess"
+  name = "${var.prefix}.with_awssupportaccess"
 }
 
 output "aws_iam_group_with_awssupportaccess" {

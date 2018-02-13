@@ -15,7 +15,7 @@ resource "aws_instance" "alpha" {
   instance_type = "t2.micro"
 
   tags {
-    Name      = "${terraform.env}.alpha"
+    Name      = "${var.prefix}.alpha"
     X-Project = "inspec"
   }
 }
@@ -26,7 +26,7 @@ resource "aws_instance" "beta" {
   iam_instance_profile = "${aws_iam_instance_profile.profile_for_ec2_with_role.name}"
 
   tags {
-    Name      = "${terraform.env}.beta"
+    Name      = "${var.prefix}.beta"
     X-Project = "inspec"
   }
 }
@@ -55,7 +55,7 @@ output "ec2_instance_no_role_id" {
 
 # Has a role
 resource "aws_iam_role" "role_for_ec2_with_role" {
-  name = "${terraform.env}.role_for_ec2_with_role"
+  name = "${var.prefix}.role_for_ec2_with_role"
 
   assume_role_policy = <<EOF
 {
@@ -75,7 +75,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "profile_for_ec2_with_role" {
-  name = "${terraform.env}.profile_for_ec2_with_role"
+  name = "${var.prefix}.profile_for_ec2_with_role"
   role = "${aws_iam_role.role_for_ec2_with_role.name}"
 }
 

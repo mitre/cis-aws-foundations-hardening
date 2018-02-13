@@ -13,7 +13,7 @@ variable "login_profile_pgp_key" {
 
 #----------------------- Recall -----------------------#
 resource "aws_iam_user" "recall_hit" {
-  name = "${terraform.env}.recall_hit"
+  name = "${var.prefix}.recall_hit"
 }
 
 output "iam_user_recall_hit" {
@@ -21,7 +21,7 @@ output "iam_user_recall_hit" {
 }
 
 output "iam_user_recall_miss" {
-  value = "${terraform.env}.recall_miss"
+  value = "${var.prefix}.recall_miss"
 }
 
 #---------- Property - has_console_password -----------#
@@ -29,7 +29,7 @@ output "iam_user_recall_miss" {
 # TODO: test for no console password user
 
 resource "aws_iam_user" "has_console_password" {
-  name          = "${terraform.env}.has_console_password"
+  name          = "${var.prefix}.has_console_password"
   force_destroy = true
 }
 
@@ -48,7 +48,7 @@ output "iam_user_has_console_password" {
 # TODO: tests and fixtures for hardware mfa
 
 resource "aws_iam_user" "no_mfa_enabled" {
-  name = "${terraform.env}.no_mfa_enabled"
+  name = "${var.prefix}.no_mfa_enabled"
 }
 
 output "iam_user_no_mfa_enabled" {
@@ -59,7 +59,7 @@ output "iam_user_no_mfa_enabled" {
 
 
 # resource "aws_iam_user" "with_access_key" {
-#   name = "${terraform.env}.with_access_key"
+#   name = "${var.prefix}.with_access_key"
 # }
 
 
@@ -75,7 +75,7 @@ output "iam_user_no_mfa_enabled" {
 
 
 # resource "aws_iam_user" "with_awssupportaccess" {
-#   name = "${terraform.env}.with_awssupportaccess"
+#   name = "${var.prefix}.with_awssupportaccess"
 # }
 
 

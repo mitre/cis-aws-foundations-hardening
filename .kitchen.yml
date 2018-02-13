@@ -4,7 +4,7 @@ driver:
   variables:
     access_key: "<%= ENV['AWS_ACCESS_KEY_ID'] %>"
     secret_key: "<%= ENV['AWS_SECRET_ACCESS_KEY'] %>"
-    region: "<%= ENV['AWS_REGION'] %>"
+    region: "<%= ENV['AWS_DEFAULT_REGION'] %>"
 
 provisioner:
   name: terraform
@@ -28,8 +28,12 @@ suites:
 
   - name: cis
     driver:
+      variables:
+        prefix: "cis"
       root_module_directory: "./test/integration/cis/build/"
     verifier:
       inspec_tests:
         - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
         # - path: "./test/integration/cis/cis-aws-foundations-baseline"
+      # controls:
+      #   - cis-aws-foundations-2.5

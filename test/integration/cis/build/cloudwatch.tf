@@ -415,11 +415,11 @@ resource "aws_cloudwatch_metric_alarm" "vpc_changes_alarm" {
 #===========================================================================#
 
 resource "aws_sns_topic" "metric_sns" {
-  name = "${terraform.env}-metric_sns"
+  name = "${var.prefix}-metric_sns"
 }
 
 resource "aws_sqs_queue" "sqs_metric_sns" {
-  name = "${terraform.env}-sqs_metric_sns"
+  name = "${var.prefix}-sqs_metric_sns"
 }
 
 resource "aws_sns_topic_subscription" "metric_sns_subscription" {

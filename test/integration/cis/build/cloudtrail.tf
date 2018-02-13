@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "log_bucket" {
-  bucket        = "inspec-testing-log-bucket-${terraform.env}.chef.io"
+  bucket        = "inspec-testing-log-bucket-${var.prefix}.chef.io"
   force_destroy = true
   acl           = "log-delivery-write"
 }
@@ -9,7 +9,7 @@ output "s3_bucket_log_bucket_name" {
 }
 
 resource "aws_s3_bucket" "trail_1_bucket" {
-  bucket        = "${terraform.env}-trail-01-bucket"
+  bucket        = "${var.prefix}-trail-01-bucket"
   force_destroy = true
 
   logging {
@@ -28,7 +28,7 @@ resource "aws_s3_bucket" "trail_1_bucket" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "s3:GetBucketAcl",
-            "Resource": "arn:aws:s3:::${terraform.env}-trail-01-bucket"
+            "Resource": "arn:aws:s3:::${var.prefix}-trail-01-bucket"
         },
         {
             "Sid": "AWSCloudTrailWrite",
@@ -37,7 +37,7 @@ resource "aws_s3_bucket" "trail_1_bucket" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "s3:PutObject",
-            "Resource": "arn:aws:s3:::${terraform.env}-trail-01-bucket/*",
+            "Resource": "arn:aws:s3:::${var.prefix}-trail-01-bucket/*",
             "Condition": {
                 "StringEquals": {
                     "s3:x-amz-acl": "bucket-owner-full-control"
@@ -50,7 +50,7 @@ POLICY
 }
 
 resource "aws_iam_role" "cloud_watch_logs_role" {
-  name = "${terraform.env}-cloud-watch-logs-role"
+  name = "${var.prefix}-cloud-watch-logs-role"
 
   assume_role_policy = <<POLICY
 {
@@ -72,8 +72,8 @@ POLICY
 resource "aws_iam_role_policy" "cloud_watch_logs_role_policy" {
   depends_on = ["aws_iam_role.cloud_watch_logs_role"]
 
-  name = "${terraform.env}-cloud-watch-logs-role-policy"
-  role = "${terraform.env}-cloud-watch-logs-role"
+  name = "${var.prefix}-cloud-watch-logs-role-policy"
+  role = "${var.prefix}-cloud-watch-logs-role"
 
   policy = <<POLICY
 {
@@ -105,11 +105,11 @@ POLICY
 }
 
 resource "aws_cloudwatch_log_group" "trail_1_log_group" {
-  name = "${terraform.env}-trail-01-log-group"
+  name = "${var.prefix}-trail-01-log-group"
 }
 
 resource "aws_kms_key" "trail_1_key" {
-  description             = "${terraform.env}-trail-01-key"
+  description             = "${var.prefix}-trail-01-key"
   deletion_window_in_days = 7
   enable_key_rotation     = true
 
@@ -192,7 +192,7 @@ POLICY
 
 resource "aws_cloudtrail" "trail_1" {
   depends_on                    = ["aws_iam_role_policy.cloud_watch_logs_role_policy"]
-  name                          = "${terraform.env}-trail-01"
+  name                          = "${var.prefix}-trail-01"
   s3_bucket_name                = "${aws_s3_bucket.trail_1_bucket.id}"
   include_global_service_events = false
   enable_logging                = true
@@ -206,7 +206,7 @@ resource "aws_cloudtrail" "trail_1" {
 }
 
 # resource "aws_cloudtrail" "trail_2" {
-#   name           = "${terraform.env}-trail-02"
+#   name           = "${var.prefix}-trail-02"
 #   s3_bucket_name = "${aws_s3_bucket.trail_1_bucket.id}"
 # }
 

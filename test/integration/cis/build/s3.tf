@@ -3,7 +3,7 @@
 #=================================================================#
 
 resource "aws_s3_bucket" "public" {
-  bucket = "inspec-testing-public-${terraform.env}.chef.io"
+  bucket = "inspec-testing-public-${var.prefix}.chef.io"
   acl    = "public-read"
 }
 
@@ -16,7 +16,7 @@ output "s3_bucket_public_region" {
 }
 
 resource "aws_s3_bucket" "private" {
-  bucket = "inspec-testing-private-${terraform.env}.chef.io"
+  bucket = "inspec-testing-private-${var.prefix}.chef.io"
   acl    = "private"
 }
 
@@ -25,7 +25,7 @@ output "s3_bucket_private_name" {
 }
 
 resource "aws_s3_bucket" "auth" {
-  bucket = "inspec-testing-auth-${terraform.env}.chef.io"
+  bucket = "inspec-testing-auth-${var.prefix}.chef.io"
   acl    = "authenticated-read"
 }
 
@@ -34,7 +34,7 @@ output "s3_bucket_auth_name" {
 }
 
 resource "aws_s3_bucket" "private_acl_public_policy" {
-  bucket = "inspec-testing-mixed-01-${terraform.env}.chef.io"
+  bucket = "inspec-testing-mixed-01-${var.prefix}.chef.io"
   acl    = "private"
 }
 
