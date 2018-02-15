@@ -37,3 +37,15 @@ suites:
         # - path: "./test/integration/cis/cis-aws-foundations-baseline"
       # controls:
       #   - cis-aws-foundations-2.5
+
+  - name: dev
+    driver:
+      variables:
+        prefix: "dev"
+      root_module_directory: "./test/integration/dev/build/"
+    verifier:
+      inspec_tests:
+        - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
+        # - path: "./test/integration/cis/cis-aws-foundations-baseline"
+      # controls:
+      #   - cis-aws-foundations-2.5
