@@ -35,6 +35,24 @@ class AwsS3Bucket < Inspec.resource(1)
       bucket_policy.any? { |s| s.effect == 'Allow' && s.principal == '*' }
   end
 
+  def has_acl_public_read?
+    puts 'AllUsers' ,bucket_acl.select { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/ }.map(&:permission)
+    puts 'AuthenticatedUsers', bucket_acl.select { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/ }.map(&:permission)
+    # first line just for formatting
+    false || \
+      bucket_acl.select { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/ }.map(&:permission).include?('READ') || \
+      bucket_acl.select { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/ }.map(&:permission).include?('READ')
+  end
+
+  def has_acl_public_write?
+    puts 'AllUsers', bucket_acl.select { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/ }.map(&:permission)
+    puts 'AuthenticatedUsers', bucket_acl.select { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/ }.map(&:permission)
+    # first line just for formatting
+    false || \
+      bucket_acl.select { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/ }.map(&:permission).include?('WRITE') || \
+      bucket_acl.select { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/ }.map(&:permission).include?('WRITE')
+  end
+
   def has_access_logging_enabled?
     return unless @exists
     # This is simple enough to inline it.
