@@ -15,10 +15,9 @@ output "aws_account_id" {
   value = "${data.aws_caller_identity.creds.account_id}"
 }
 
-# data "aws_region" "region" {
-#   current = true
-# }
-
+data "aws_region" "region" {
+  current = true
+}
 
 # output "aws_region" {
 #   value = "${data.aws_region.region.name}"

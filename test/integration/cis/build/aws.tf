@@ -11,14 +11,32 @@ provider "aws" {
 
 data "aws_caller_identity" "creds" {}
 
+data "aws_region" "region" {}
+
 output "aws_account_id" {
   value = "${data.aws_caller_identity.creds.account_id}"
 }
 
-data "aws_region" "region" {
-  current = true
+provider "aws" {
+  alias  = "east1"
+  region = "us-east-1"
+}
+
+provider "aws" {
+  alias  = "east2"
+  region = "us-east-2"
+}
+
+provider "aws" {
+  alias  = "west1"
+  region = "us-west-1"
+}
+
+provider "aws" {
+  alias  = "west2"
+  region = "us-west-2"
 }
 
 output "aws_region" {
-  value = "${data.aws_region.region.name}"
+  value = "${var.region}"
 }

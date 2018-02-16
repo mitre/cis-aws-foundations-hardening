@@ -1,31 +1,15 @@
-provider "aws" {
-  alias  = "east1"
-  region = "us-east-1"
-}
-
-provider "aws" {
-  alias  = "east2"
-  region = "us-east-2"
-}
-
-provider "aws" {
-  alias  = "west1"
-  region = "us-west-1"
-}
-
-provider "aws" {
-  alias  = "west2"
-  region = "us-west-2"
-}
+#======================================================#
+#              Bucket for ConfigService
+#======================================================#
 
 resource "aws_s3_bucket" "config_delivery_bucket" {
-  bucket        = "${var.prefix}-config-delivery-bucket"
+  bucket_prefix = "${var.prefix}-config-delivery-bucket-"
   force_destroy = true
 }
 
-# #======================================================#
-# #                 Recorder us-east-1
-# #======================================================#
+#======================================================#
+#                 Recorder us-east-1
+#======================================================#
 
 resource "aws_iam_role" "config_recorder_role_east1" {
   name = "${var.prefix}-config-recorder-role-east1"
@@ -140,9 +124,9 @@ resource "aws_config_configuration_recorder" "config_recorder_east1" {
   }
 }
 
-# # #======================================================#
-# # #                 Recorder us-east-2
-# # #======================================================#
+#======================================================#
+#                 Recorder us-east-2
+#======================================================#
 
 resource "aws_iam_role" "config_recorder_role_east2" {
   name = "${var.prefix}-config-recorder-role-east2"
@@ -257,9 +241,9 @@ resource "aws_config_configuration_recorder" "config_recorder_east2" {
   }
 }
 
-# # #======================================================#
-# # #                 Recorder us-west-1
-# # #======================================================#
+#======================================================#
+#                 Recorder us-west-1
+#======================================================#
 
 resource "aws_iam_role" "config_recorder_role_west1" {
   name = "${var.prefix}-config-recorder-role-west1"
@@ -374,9 +358,9 @@ resource "aws_config_configuration_recorder" "config_recorder_west1" {
   }
 }
 
-# # #======================================================#
-# # #                 Recorder us-west-2
-# # #======================================================#
+# ======================================================#
+#                 Recorder us-west-2
+# ======================================================#
 
 resource "aws_iam_role" "config_recorder_role_west2" {
   name = "${var.prefix}-config-recorder-role-west2"

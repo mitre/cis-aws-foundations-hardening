@@ -1,3 +1,33 @@
+#===========================================================================#
+#                  Cloudwatch Log Group For Cloudwatch Alarm
+#===========================================================================#
+
+# resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
+#   name = "${var.prefix}-cloudwatch-log-group"
+# }
+
+#===========================================================================#
+#                      SNS Topic For Cloudwatch Alarm
+#===========================================================================#
+
+resource "aws_sns_topic" "metric_sns" {
+  name = "${var.prefix}-metric-sns"
+}
+
+resource "aws_sqs_queue" "sqs_metric_sns" {
+  name = "${var.prefix}-sqs-metric-sns"
+}
+
+resource "aws_sns_topic_subscription" "metric_sns_subscription" {
+  topic_arn = "${aws_sns_topic.metric_sns.arn}"
+  protocol  = "sqs"
+  endpoint  = "${aws_sqs_queue.sqs_metric_sns.arn}"
+}
+
+output "cloudwatch_metric_sns" {
+  value = "${aws_sns_topic.metric_sns.arn}"
+}
+
 # Contains resources and outputs related to testing the aws_cloudwatch_* resources.
 
 #======================================================#
@@ -11,7 +41,7 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorized_api_calls_metric" {
 
   pattern = "{ ($.errorCode = \"*UnauthorizedOperation\") || ($.errorCode = \"AccessDenied*\") }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "unauthorized_api_calls_metric"
@@ -40,7 +70,7 @@ resource "aws_cloudwatch_log_metric_filter" "no_mfa_console_signin_metric" {
 
   pattern = "{ ($.eventName = \"ConsoleLogin\") && ($.additionalEventData.MFAUsed != \"Yes\") }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "no_mfa_console_signin_metric"
@@ -69,7 +99,7 @@ resource "aws_cloudwatch_log_metric_filter" "root_usage_metric" {
 
   pattern = "{ $.userIdentity.type = \"Root\" && $.userIdentity.invokedBy NOT EXISTS && $.eventType != \"AwsServiceEvent\" }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "root_usage_metric"
@@ -96,9 +126,9 @@ resource "aws_cloudwatch_metric_alarm" "root_usage_alarm" {
 resource "aws_cloudwatch_log_metric_filter" "iam_changes_metric" {
   name = "iam_changes_metric"
 
-  pattern = "{($.eventName=DeleteGroupPolicy)||($.eventName=DeleteRolePolicy)||($.eventName=DeleteUserPolicy)||($.eventName=PutGroupPolicy)||($.eventName=PutRolePolicy)||($.eventName=PutUserPolicy)||($.eventName=CreatePolicy)||($.eventName=DeletePolicy)||($.eventName=CreatePolicyVersion)||($.eventName=DeletePolicyVersion)||($.eventName=AttachRolePolicy)||($.eventName=DetachRolePolicy)||($.eventName=AttachUserPolicy)||($.eventName=DetachUserPolicy)||($.eventName=AttachGroupPolicy)||($.eventName=DetachGroupPolicy)}"
+  pattern = "{ ($.eventName=DeleteGroupPolicy)||($.eventName=DeleteRolePolicy)||($.eventName=DeleteUserPolicy)||($.eventName=PutGroupPolicy)||($.eventName=PutRolePolicy)||($.eventName=PutUserPolicy)||($.eventName=CreatePolicy)||($.eventName=DeletePolicy)||($.eventName=CreatePolicyVersion)||($.eventName=DeletePolicyVersion)||($.eventName=AttachRolePolicy)||($.eventName=DetachRolePolicy)||($.eventName=AttachUserPolicy)||($.eventName=DetachUserPolicy)||($.eventName=AttachGroupPolicy)||($.eventName=DetachGroupPolicy) }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "iam_changes_metric"
@@ -127,7 +157,7 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail_cfg_changes_metric" {
 
   pattern = "{ ($.eventName = CreateTrail) || ($.eventName = UpdateTrail) || ($.eventName = DeleteTrail) || ($.eventName = StartLogging) || ($.eventName = StopLogging) }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "cloudtrail_cfg_changes_metric"
@@ -156,7 +186,7 @@ resource "aws_cloudwatch_log_metric_filter" "console_signin_failure_metric" {
 
   pattern = "{ ($.eventName = ConsoleLogin) && ($.errorMessage = \"Failed authentication\") }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "console_signin_failure_metric"
@@ -185,7 +215,7 @@ resource "aws_cloudwatch_log_metric_filter" "disable_or_delete_cmk_metric" {
 
   pattern = "{ ($.eventSource = kms.amazonaws.com) && (($.eventName = DisableKey) || ($.eventName = ScheduleKeyDeletion)) }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "disable_or_delete_cmk_metric"
@@ -214,7 +244,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3_bucket_policy_changes_metric" {
 
   pattern = "{ ($.eventSource = s3.amazonaws.com) && (($.eventName = PutBucketAcl) || ($.eventName = PutBucketPolicy) || ($.eventName = PutBucketCors) || ($.eventName = PutBucketLifecycle) || ($.eventName = PutBucketReplication) || ($.eventName = DeleteBucketPolicy) || ($.eventName = DeleteBucketCors) || ($.eventName = DeleteBucketLifecycle) || ($.eventName = DeleteBucketReplication)) }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "s3_bucket_policy_changes_metric"
@@ -243,7 +273,7 @@ resource "aws_cloudwatch_log_metric_filter" "aws_config_changes_metric" {
 
   pattern = "{ ($.eventSource = config.amazonaws.com) && (($.eventName=StopConfigurationRecorder)||($.eventName=DeleteDeliveryChannel)||($.eventName=PutDeliveryChannel)||($.eventName=PutConfigurationRecorder))}"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "aws_config_changes_metric"
@@ -272,7 +302,7 @@ resource "aws_cloudwatch_log_metric_filter" "security_group_changes_metric" {
 
   pattern = "{ ($.eventName = AuthorizeSecurityGroupIngress) || ($.eventName = AuthorizeSecurityGroupEgress) || ($.eventName = RevokeSecurityGroupIngress) || ($.eventName = RevokeSecurityGroupEgress) || ($.eventName = CreateSecurityGroup) || ($.eventName = DeleteSecurityGroup) }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "security_group_changes_metric"
@@ -301,7 +331,7 @@ resource "aws_cloudwatch_log_metric_filter" "nacl_changes_metric" {
 
   pattern = "{ ($.eventName = CreateNetworkAcl) || ($.eventName = CreateNetworkAclEntry) || ($.eventName = DeleteNetworkAcl) || ($.eventName = DeleteNetworkAclEntry) || ($.eventName = ReplaceNetworkAclEntry) || ($.eventName = ReplaceNetworkAclAssociation) }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "nacl_changes_metric"
@@ -330,7 +360,7 @@ resource "aws_cloudwatch_log_metric_filter" "network_gw_changes_metric" {
 
   pattern = "{ ($.eventName = CreateCustomerGateway) || ($.eventName = DeleteCustomerGateway) || ($.eventName = AttachInternetGateway) || ($.eventName = CreateInternetGateway) || ($.eventName = DeleteInternetGateway) || ($.eventName = DetachInternetGateway) }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "network_gw_changes_metric"
@@ -359,7 +389,7 @@ resource "aws_cloudwatch_log_metric_filter" "route_table_changes_metric" {
 
   pattern = "{ ($.eventName = CreateRoute) || ($.eventName = CreateRouteTable) || ($.eventName = ReplaceRoute) || ($.eventName = ReplaceRouteTableAssociation) || ($.eventName = DeleteRouteTable) || ($.eventName = DeleteRoute) || ($.eventName = DisassociateRouteTable) }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "route_table_changes_metric"
@@ -388,7 +418,7 @@ resource "aws_cloudwatch_log_metric_filter" "vpc_changes_metric" {
 
   pattern = "{ ($.eventName = CreateVpc) || ($.eventName = DeleteVpc) || ($.eventName = ModifyVpcAttribute) || ($.eventName = AcceptVpcPeeringConnection) || ($.eventName = CreateVpcPeeringConnection) || ($.eventName = DeleteVpcPeeringConnection) || ($.eventName = RejectVpcPeeringConnection) || ($.eventName = AttachClassicLinkVpc) || ($.eventName = DetachClassicLinkVpc) || ($.eventName = DisableVpcClassicLink) || ($.eventName = EnableVpcClassicLink) }"
 
-  log_group_name = "${aws_cloudwatch_log_group.trail_1_log_group.name}"
+  log_group_name = "${aws_cloudwatch_log_group.cloudwatch_log_group.name}"
 
   metric_transformation {
     name      = "vpc_changes_metric"
@@ -408,26 +438,4 @@ resource "aws_cloudwatch_metric_alarm" "vpc_changes_alarm" {
   threshold           = "1"
 
   alarm_actions = ["${aws_sns_topic.metric_sns.arn}"]
-}
-
-#===========================================================================#
-#                      SNS Topic For Cloudwatch Alarm
-#===========================================================================#
-
-resource "aws_sns_topic" "metric_sns" {
-  name = "${var.prefix}-metric_sns"
-}
-
-resource "aws_sqs_queue" "sqs_metric_sns" {
-  name = "${var.prefix}-sqs_metric_sns"
-}
-
-resource "aws_sns_topic_subscription" "metric_sns_subscription" {
-  topic_arn = "${aws_sns_topic.metric_sns.arn}"
-  protocol  = "sqs"
-  endpoint  = "${aws_sqs_queue.sqs_metric_sns.arn}"
-}
-
-output "cloudwatch_metric_sns" {
-  value = "${aws_sns_topic.metric_sns.arn}"
 }

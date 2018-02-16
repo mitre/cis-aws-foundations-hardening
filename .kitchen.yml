@@ -15,6 +15,7 @@ platforms:
 verifier:
   name: terraform
   format: cli
+  # output: resuts.json
   groups:
     - name: default
 
@@ -33,10 +34,9 @@ suites:
       root_module_directory: "./test/integration/cis/build/"
     verifier:
       inspec_tests:
-        - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
-        # - path: "./test/integration/cis/cis-aws-foundations-baseline"
-      # controls:
-      #   - cis-aws-foundations-2.5
+        # - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
+        - path: "./test/integration/cis/cis-aws-foundations-baseline"
+
 
   - name: dev
     driver:
@@ -45,7 +45,5 @@ suites:
       root_module_directory: "./test/integration/dev/build/"
     verifier:
       inspec_tests:
-        - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
-        # - path: "./test/integration/cis/cis-aws-foundations-baseline"
-      # controls:
-      #   - cis-aws-foundations-2.5
+        # - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
+        - path: "./test/integration/cis/cis-aws-foundations-baseline"

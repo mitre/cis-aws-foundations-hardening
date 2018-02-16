@@ -1,21 +1,25 @@
-resource "aws_s3_bucket" "log_bucket" {
-  bucket        = "inspec-testing-log-bucket-${terraform.env}.chef.io"
+resource "aws_s3_bucket" "cloudtrail_bucket_access_log_bucket" {
+  bucket_prefix = "${var.prefix}-cloudtrail_bucket_access_log_bucket-"
   force_destroy = true
   acl           = "log-delivery-write"
 }
 
 output "s3_bucket_log_bucket_name" {
-  value = "${aws_s3_bucket.log_bucket.id}"
+  value = "${aws_s3_bucket.cloudtrail_bucket_access_log_bucket.id}"
 }
 
-resource "aws_s3_bucket" "trail_1_bucket" {
-  bucket        = "${terraform.env}-trail-01-bucket"
+resource "aws_s3_bucket" "cloudtrail_bucket" {
+  bucket_prefix = "${var.prefix}-cloudtrail-bucket-"
   force_destroy = true
 
   logging {
-    target_bucket = "${aws_s3_bucket.log_bucket.id}"
+    target_bucket = "${aws_s3_bucket.cloudtrail_bucket_access_log_bucket.id}"
     target_prefix = "log/"
   }
+}
+
+resource "aws_s3_bucket_policy" "b" {
+  bucket = "${aws_s3_bucket.cloudtrail_bucket.id}"
 
   policy = <<POLICY
 {
@@ -28,7 +32,7 @@ resource "aws_s3_bucket" "trail_1_bucket" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "s3:GetBucketAcl",
-            "Resource": "arn:aws:s3:::${terraform.env}-trail-01-bucket"
+            "Resource": "arn:aws:s3:::${aws_s3_bucket.cloudtrail_bucket.id}"
         },
         {
             "Sid": "AWSCloudTrailWrite",
@@ -37,7 +41,7 @@ resource "aws_s3_bucket" "trail_1_bucket" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "s3:PutObject",
-            "Resource": "arn:aws:s3:::${terraform.env}-trail-01-bucket/*",
+            "Resource": "arn:aws:s3:::${aws_s3_bucket.cloudtrail_bucket.id}/*",
             "Condition": {
                 "StringEquals": {
                     "s3:x-amz-acl": "bucket-owner-full-control"
@@ -50,7 +54,7 @@ POLICY
 }
 
 resource "aws_iam_role" "cloud_watch_logs_role" {
-  name = "${terraform.env}-cloud-watch-logs-role"
+  name = "${var.prefix}-cloud-watch-logs-role"
 
   assume_role_policy = <<POLICY
 {
@@ -72,8 +76,8 @@ POLICY
 resource "aws_iam_role_policy" "cloud_watch_logs_role_policy" {
   depends_on = ["aws_iam_role.cloud_watch_logs_role"]
 
-  name = "${terraform.env}-cloud-watch-logs-role-policy"
-  role = "${terraform.env}-cloud-watch-logs-role"
+  name = "${var.prefix}-cloud-watch-logs-role-policy"
+  role = "${var.prefix}-cloud-watch-logs-role"
 
   policy = <<POLICY
 {
@@ -86,7 +90,7 @@ resource "aws_iam_role_policy" "cloud_watch_logs_role_policy" {
                 "logs:CreateLogStream"
             ],
             "Resource": [
-                "arn:aws:logs:${data.aws_region.region.name}:${data.aws_caller_identity.creds.account_id}:log-group:${aws_cloudwatch_log_group.trail_1_log_group.name}:log-stream:${data.aws_caller_identity.creds.account_id}_CloudTrail_${data.aws_region.region.name}*"
+                "arn:aws:logs:${data.aws_region.region.name}:${data.aws_caller_identity.creds.account_id}:log-group:${aws_cloudwatch_log_group.cloudwatch_log_group.name}:log-stream:${data.aws_caller_identity.creds.account_id}_CloudTrail_${data.aws_region.region.name}*"
             ]
         },
         {
@@ -96,7 +100,7 @@ resource "aws_iam_role_policy" "cloud_watch_logs_role_policy" {
                 "logs:PutLogEvents"
             ],
             "Resource": [
-                "arn:aws:logs:${data.aws_region.region.name}:${data.aws_caller_identity.creds.account_id}:log-group:${aws_cloudwatch_log_group.trail_1_log_group.name}:log-stream:${data.aws_caller_identity.creds.account_id}_CloudTrail_${data.aws_region.region.name}*"
+                "arn:aws:logs:${data.aws_region.region.name}:${data.aws_caller_identity.creds.account_id}:log-group:${aws_cloudwatch_log_group.cloudwatch_log_group.name}:log-stream:${data.aws_caller_identity.creds.account_id}_CloudTrail_${data.aws_region.region.name}*"
             ]
         }
     ]
@@ -104,12 +108,12 @@ resource "aws_iam_role_policy" "cloud_watch_logs_role_policy" {
 POLICY
 }
 
-resource "aws_cloudwatch_log_group" "trail_1_log_group" {
-  name = "${terraform.env}-trail-01-log-group"
+resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
+  name = "${var.prefix}-cloudwatch-log-group"
 }
 
-resource "aws_kms_key" "trail_1_key" {
-  description             = "${terraform.env}-trail-01-key"
+resource "aws_kms_key" "cloudtrail_key" {
+  description             = "${var.prefix}-cloudtrail-key"
   deletion_window_in_days = 7
   enable_key_rotation     = true
 
@@ -192,21 +196,21 @@ POLICY
 
 resource "aws_cloudtrail" "trail_1" {
   depends_on                    = ["aws_iam_role_policy.cloud_watch_logs_role_policy"]
-  name                          = "${terraform.env}-trail-01"
-  s3_bucket_name                = "${aws_s3_bucket.trail_1_bucket.id}"
+  name                          = "${var.prefix}-trail-01"
+  s3_bucket_name                = "${aws_s3_bucket.cloudtrail_bucket.id}"
   include_global_service_events = false
   enable_logging                = true
   is_multi_region_trail         = true
   enable_log_file_validation    = true
 
-  cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.trail_1_log_group.arn}"
+  cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.cloudwatch_log_group.arn}"
   cloud_watch_logs_role_arn  = "${aws_iam_role.cloud_watch_logs_role.arn}"
-  kms_key_id                 = "${aws_kms_key.trail_1_key.arn}"
+  kms_key_id                 = "${aws_kms_key.cloudtrail_key.arn}"
 }
 
 # resource "aws_cloudtrail" "trail_2" {
-#   name           = "${terraform.env}-trail-02"
-#   s3_bucket_name = "${aws_s3_bucket.trail_1_bucket.id}"
+#   name           = "${var.prefix}-trail-02"
+#   s3_bucket_name = "${aws_s3_bucket.cloudtrail_bucket.id}"
 # }
 
 output "cloudtrail_trail_1_name" {
@@ -218,15 +222,15 @@ output "cloudtrail_trail_1_arn" {
 }
 
 output "cloudtrail_trail_1_s3_bucket_name" {
-  value = "${aws_s3_bucket.trail_1_bucket.id}"
+  value = "${aws_s3_bucket.cloudtrail_bucket.id}"
 }
 
-output "cloudtrail_trail_1_key_arn" {
-  value = "${aws_kms_key.trail_1_key.arn}"
+output "cloudtrail_cloudtrail_key_arn" {
+  value = "${aws_kms_key.cloudtrail_key.arn}"
 }
 
 output "cloudtrail_trail_1_cloud_watch_logs_group_arn" {
-  value = "${aws_cloudwatch_log_group.trail_1_log_group.arn}"
+  value = "${aws_cloudwatch_log_group.cloudwatch_log_group.arn}"
 }
 
 output "cloudtrail_trail_1_cloud_watch_logs_role_arn" {
@@ -234,7 +238,7 @@ output "cloudtrail_trail_1_cloud_watch_logs_role_arn" {
 }
 
 # output "cloudtrail_trail_2_s3_bucket_name" {
-#   value = "${aws_s3_bucket.trail_1_bucket.id}"
+#   value = "${aws_s3_bucket.cloudtrail_bucket.id}"
 # }
 
 
