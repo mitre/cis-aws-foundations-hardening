@@ -18,7 +18,7 @@ resource "aws_s3_bucket" "cloudtrail_bucket" {
   }
 }
 
-resource "aws_s3_bucket_policy" "b" {
+resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
   bucket = "${aws_s3_bucket.cloudtrail_bucket.id}"
 
   policy = <<POLICY
@@ -195,7 +195,14 @@ POLICY
 }
 
 resource "aws_cloudtrail" "trail_1" {
-  depends_on                    = ["aws_iam_role_policy.cloud_watch_logs_role_policy"]
+  depends_on = [
+    "aws_iam_role.cloud_watch_logs_role",
+    "aws_iam_role_policy.cloud_watch_logs_role_policy",
+    "aws_s3_bucket.cloudtrail_bucket",
+    "aws_s3_bucket_policy.cloudtrail_bucket_policy",
+    "aws_kms_key.cloudtrail_key",
+  ]
+
   name                          = "${var.prefix}-trail-01"
   s3_bucket_name                = "${aws_s3_bucket.cloudtrail_bucket.id}"
   include_global_service_events = false
