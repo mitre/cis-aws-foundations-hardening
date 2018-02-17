@@ -47,3 +47,5 @@ suites:
       inspec_tests:
         # - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
         - path: "./test/integration/cis/cis-aws-foundations-baseline"
+      controls:
+        - cis-aws-foundations-1.18
