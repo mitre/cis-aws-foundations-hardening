@@ -20,17 +20,6 @@ resource "aws_instance" "alpha" {
   }
 }
 
-resource "aws_instance" "beta" {
-  ami                  = "${data.aws_ami.centos.id}"
-  instance_type        = "t2.micro"
-  iam_instance_profile = "${aws_iam_instance_profile.profile_for_ec2_with_role.name}"
-
-  tags {
-    Name      = "${var.prefix}.beta"
-    X-Project = "inspec"
-  }
-}
-
 #----------------------- Recall -----------------------#
 
 # Using Alpha for recall
@@ -38,20 +27,7 @@ output "ec2_instance_recall_hit_name" {
   value = "${aws_instance.alpha.tags.Name}"
 }
 
-output "ec2_instance_recall_hit_id" {
-  value = "${aws_instance.alpha.id}"
-}
-
-output "ec2_instance_recall_miss" {
-  value = "i-06b4bc106e0d03dfd"
-}
-
 #----------------- has_role property ------------------#
-
-# No role
-output "ec2_instance_no_role_id" {
-  value = "${aws_instance.alpha.id}"
-}
 
 # Has a role
 resource "aws_iam_role" "role_for_ec2_with_role" {
@@ -74,13 +50,21 @@ resource "aws_iam_role" "role_for_ec2_with_role" {
 EOF
 }
 
+# resource "aws_security_group" "alpha" {
+#   name        = "alpha"
+#   description = "SG alpha"
+#   vpc_id      = "${data.aws_vpc.default.id}"
+# }
+
 resource "aws_iam_instance_profile" "profile_for_ec2_with_role" {
   name = "${var.prefix}.profile_for_ec2_with_role"
   role = "${aws_iam_role.role_for_ec2_with_role.name}"
 }
 
-output "ec2_instance_has_role_id" {
-  value = "${aws_instance.beta.id}"
+output "aws_actions_performing_instance_ids" {
+  value = [
+    "${aws_instance.alpha.id}",
+  ]
 }
 
 #-------------------- instance_type property -----------------------#
@@ -88,9 +72,9 @@ output "ec2_instance_type_t2_micro_id" {
   value = "${aws_instance.alpha.id}"
 }
 
-output "ec2_instance_type_t2_micro2_id" {
-  value = "${aws_instance.beta.id}"
-}
+# output "ec2_instance_type_t2_micro2_id" {
+#   value = "${aws_instance.beta.id}"
+# }
 
 #---------------------- image_id property --------------------------#
 
@@ -115,14 +99,6 @@ data "aws_ami" "debian" {
   }
 }
 
-output "ec2_ami_id_debian" {
-  value = "${data.aws_ami.debian.id}"
-}
-
-output "ec2_instance_debian_id" {
-  value = "${aws_instance.alpha.id}"
-}
-
 # Centos
 data "aws_ami" "centos" {
   most_recent = true
@@ -144,60 +120,63 @@ data "aws_ami" "centos" {
   }
 }
 
-output "ec2_ami_id_centos" {
-  value = "${data.aws_ami.centos.id}"
-}
+# #============================================================#
+# #                      Security Groups
+# #============================================================#
 
-output "ec2_instance_centos_id" {
-  value = "${aws_instance.beta.id}"
-}
 
-#============================================================#
-#                      Security Groups
-#============================================================#
+# # Look up the default VPC and the default security group for it
+# data "aws_vpc" "default" {
+#   default = "true"
+# }
 
-# Look up the default VPC and the default security group for it
-data "aws_vpc" "default" {
-  default = "true"
-}
 
-data "aws_security_group" "default" {
-  vpc_id = "${data.aws_vpc.default.id}"
-  name   = "default"
-}
+# data "aws_security_group" "default" {
+#   vpc_id = "${data.aws_vpc.default.id}"
+#   name   = "default"
+# }
 
-output "ec2_security_group_default_vpc_id" {
-  value = "${data.aws_vpc.default.id}"
-}
 
-output "ec2_security_group_default_group_id" {
-  value = "${data.aws_security_group.default.id}"
-}
+# output "ec2_security_group_default_vpc_id" {
+#   value = "${data.aws_vpc.default.id}"
+# }
 
-resource "aws_vpc" "non_default" {
-  cidr_block = "172.32.0.0/16"
-}
 
-output "vpc_non_default_id" {
-  value = "${aws_vpc.non_default.id}"
-}
+# output "ec2_security_group_default_group_id" {
+#   value = "${data.aws_security_group.default.id}"
+# }
 
-output "vpc_non_default_cidr_block" {
-  value = "${aws_vpc.non_default.cidr_block}"
-}
 
-output "vpc_non_default_instance_tenancy" {
-  value = "${aws_vpc.non_default.instance_tenancy}"
-}
+# resource "aws_vpc" "non_default" {
+#   cidr_block = "172.32.0.0/16"
+# }
+
+
+# output "vpc_non_default_id" {
+#   value = "${aws_vpc.non_default.id}"
+# }
+
+
+# output "vpc_non_default_cidr_block" {
+#   value = "${aws_vpc.non_default.cidr_block}"
+# }
+
+
+# output "vpc_non_default_instance_tenancy" {
+#   value = "${aws_vpc.non_default.instance_tenancy}"
+# }
+
 
 # Create a security group with a known description
 # in the default VPC
-resource "aws_security_group" "alpha" {
-  name        = "alpha"
-  description = "SG alpha"
-  vpc_id      = "${data.aws_vpc.default.id}"
-}
+# resource "aws_security_group" "alpha" {
+#   name        = "alpha"
+#   description = "SG alpha"
+#   vpc_id      = "${data.aws_vpc.default.id}"
+# }
 
-output "ec2_security_group_alpha_group_id" {
-  value = "${aws_security_group.alpha.id}"
-}
+
+# output "ec2_security_group_alpha_group_id" {
+#   value = "${aws_security_group.alpha.id}"
+# }
+

@@ -4,10 +4,6 @@ resource "aws_s3_bucket" "cloudtrail_bucket_access_log_bucket" {
   acl           = "log-delivery-write"
 }
 
-output "s3_bucket_log_bucket_name" {
-  value = "${aws_s3_bucket.cloudtrail_bucket_access_log_bucket.id}"
-}
-
 resource "aws_s3_bucket" "cloudtrail_bucket" {
   bucket_prefix = "${var.prefix}-cloudtrail-bucket-"
   force_destroy = true
@@ -214,47 +210,3 @@ resource "aws_cloudtrail" "trail_1" {
   cloud_watch_logs_role_arn  = "${aws_iam_role.cloud_watch_logs_role.arn}"
   kms_key_id                 = "${aws_kms_key.cloudtrail_key.arn}"
 }
-
-# resource "aws_cloudtrail" "trail_2" {
-#   name           = "${var.prefix}-trail-02"
-#   s3_bucket_name = "${aws_s3_bucket.cloudtrail_bucket.id}"
-# }
-
-output "cloudtrail_trail_1_name" {
-  value = "${aws_cloudtrail.trail_1.name}"
-}
-
-output "cloudtrail_trail_1_arn" {
-  value = "${aws_cloudtrail.trail_1.arn}"
-}
-
-output "cloudtrail_trail_1_s3_bucket_name" {
-  value = "${aws_s3_bucket.cloudtrail_bucket.id}"
-}
-
-output "cloudtrail_cloudtrail_key_arn" {
-  value = "${aws_kms_key.cloudtrail_key.arn}"
-}
-
-output "cloudtrail_trail_1_cloud_watch_logs_group_arn" {
-  value = "${aws_cloudwatch_log_group.cloudwatch_log_group.arn}"
-}
-
-output "cloudtrail_trail_1_cloud_watch_logs_role_arn" {
-  value = "${aws_iam_role.cloud_watch_logs_role.arn}"
-}
-
-# output "cloudtrail_trail_2_s3_bucket_name" {
-#   value = "${aws_s3_bucket.cloudtrail_bucket.id}"
-# }
-
-
-# output "cloudtrail_trail_2_name" {
-#   value = "${aws_cloudtrail.trail_2.name}"
-# }
-
-
-# output "cloudtrail_trail_2_arn" {
-#   value = "${aws_cloudtrail.trail_2.arn}"
-# }
-
