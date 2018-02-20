@@ -10,7 +10,7 @@ This will help you setup and validate an AWS VPC/ENV ...
 - kitchen-terraform (v3.0.0)
 - test-kitchen (v.1.60.0)
 - inspec.io
-- terraform (v0.10.0)
+- terraform ( > v0.10.2)
 - tfenv
 - awscli (v1.1)
 
@@ -34,20 +34,37 @@ You will need to set the following env_vars for this to work.
 - AWS_SECRET_ACCESS_KEY ... (default: none)
 - AWS_REGION - The AWS Region you would like to use (default: us-east-1)
 
+### Provide Infrastructure Data 
 
-1. Switch to your Terraform 0.11.0 environment  
-2. Ensure your environment variables are configured (see above)  
-3. Run Test kitchen
+Provide data for the infrastructure build in the file:
+/test/integration/cis/build/terraform.tfvars
 
-  **A.** **Run Each Phase of the Test Suite**  
-  a. `bundle exec kitchen create cis-setup`  
-  b. `bundle exec kitchen converge cis-setup`  
-  c. `bundle exec kitchen verify cis-setup`  
-  d. `bundle exec kitchen destroy cis-setup`  
-  **B.** **Run the Fully Automated Suite**   
-  a. `bundle exec kitchen test cis-setup --destroy=always`
+```
+- instance_type= "t2.micro"
+- instance_key_name= "aws_key_name"
+- ssh_security_group_cidr= "108.30.0.0/32"
+```
 
-## Quetions:
+### Build/Verify
+
+Run Test kitchen
+
+  a. `bundle exec kitchen list`  
+  b. `bundle exec kitchen create cis-setup`  
+  c. `bundle exec kitchen converge cis-setup`  
+  d. `bundle exec kitchen verify cis-setup`  
+  e. `bundle exec kitchen destroy cis-setup`  
+
+
+### Notes
+
+1) AWS Simple Queue Service takes a few minutes to build, so please wait a few minutes before running `kitchen verify`.
+
+2) Known Terrafrom bug that affects Managed policy attachment shows up on a second `kitchen converge` or `kitchen destroy`. 
+https://github.com/hashicorp/terraform/issues/5979 .
+Please converge or destroy again to get past the error.
+
+## Questions:
 
 - see: https://newcontext-oss.github.io/kitchen-terraform/tutorials/amazon_provider_ec2.html
 - see: https://github.com/chef/inspec-aws
