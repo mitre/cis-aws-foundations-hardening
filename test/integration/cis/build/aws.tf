@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 0.11.3"
+  required_version = "~> 0.11.1"
 }
 
 provider "aws" {
@@ -12,10 +12,6 @@ provider "aws" {
 data "aws_caller_identity" "creds" {}
 
 data "aws_region" "region" {}
-
-output "aws_account_id" {
-  value = "${data.aws_caller_identity.creds.account_id}"
-}
 
 provider "aws" {
   alias  = "east1"
@@ -35,8 +31,4 @@ provider "aws" {
 provider "aws" {
   alias  = "west2"
   region = "us-west-2"
-}
-
-output "aws_region" {
-  value = "${var.region}"
 }

@@ -104,10 +104,6 @@ resource "aws_iam_role_policy" "cloud_watch_logs_role_policy" {
 POLICY
 }
 
-resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
-  name = "${var.prefix}-cloudwatch-log-group"
-}
-
 resource "aws_kms_key" "cloudtrail_key" {
   description             = "${var.prefix}-cloudtrail-key"
   deletion_window_in_days = 7
@@ -201,7 +197,7 @@ resource "aws_cloudtrail" "trail_1" {
 
   name                          = "${var.prefix}-trail-01"
   s3_bucket_name                = "${aws_s3_bucket.cloudtrail_bucket.id}"
-  include_global_service_events = false
+  include_global_service_events = true
   enable_logging                = true
   is_multi_region_trail         = true
   enable_log_file_validation    = true

@@ -1,37 +1,24 @@
-# Contains resources and outputs related to testing the aws_ec2_* resources.
-
 #======================================================#
 #                    EC2 Instances
 #======================================================#
 
-# Test fixture info:
-# instance |    OS   | has_role? | instance_type
-# -----------------------------------------------
-#  alpha   | debian  |    N      |  t2.micro
-#   beta   | centos  |    Y      |  t2.small
-
-resource "aws_instance" "alpha" {
-  ami           = "${data.aws_ami.debian.id}"
-  instance_type = "t2.micro"
+resource "aws_instance" "aws_support_access_instance" {
+  ami                    = "${data.aws_ami.centos.id}"
+  instance_type          = "${var.instance_type}"
+  vpc_security_group_ids = ["${aws_security_group.ssh.id}"]
+  iam_instance_profile   = "${aws_iam_instance_profile.aws_support_access_instance_profile.name}"
+  key_name               = "${var.instance_key_name}"
 
   tags {
-    Name      = "${var.prefix}.alpha"
-    X-Project = "inspec"
+    Name = "${var.prefix}.aws_support_access_instance"
   }
-}
-
-#----------------------- Recall -----------------------#
-
-# Using Alpha for recall
-output "ec2_instance_recall_hit_name" {
-  value = "${aws_instance.alpha.tags.Name}"
 }
 
 #----------------- has_role property ------------------#
 
 # Has a role
-resource "aws_iam_role" "role_for_ec2_with_role" {
-  name = "${var.prefix}.role_for_ec2_with_role"
+resource "aws_iam_role" "aws_support_access_role" {
+  name = "${var.prefix}.aws_support_access_role"
 
   assume_role_policy = <<EOF
 {
@@ -50,38 +37,34 @@ resource "aws_iam_role" "role_for_ec2_with_role" {
 EOF
 }
 
-# resource "aws_security_group" "alpha" {
-#   name        = "alpha"
-#   description = "SG alpha"
-#   vpc_id      = "${data.aws_vpc.default.id}"
-# }
-
-resource "aws_iam_instance_profile" "profile_for_ec2_with_role" {
-  name = "${var.prefix}.profile_for_ec2_with_role"
-  role = "${aws_iam_role.role_for_ec2_with_role.name}"
+data "aws_iam_policy" "AWSSupportAccess" {
+  arn = "arn:aws:iam::aws:policy/AWSSupportAccess"
 }
 
-output "aws_actions_performing_instance_ids" {
-  value = [
-    "${aws_instance.alpha.id}",
+resource "aws_iam_role_policy_attachment" "aws_support_access_role_attach" {
+  role       = "${aws_iam_role.aws_support_access_role.name}"
+  policy_arn = "${data.aws_iam_policy.AWSSupportAccess.arn}"
+
+  depends_on = [
+    "aws_iam_role.aws_support_access_role",
+    "data.aws_iam_policy.AWSSupportAccess",
   ]
 }
 
-#-------------------- instance_type property -----------------------#
-output "ec2_instance_type_t2_micro_id" {
-  value = "${aws_instance.alpha.id}"
-}
+resource "aws_iam_instance_profile" "aws_support_access_instance_profile" {
+  name = "${var.prefix}.aws_support_access_instance_profile"
+  role = "${aws_iam_role.aws_support_access_role.name}"
 
-# output "ec2_instance_type_t2_micro2_id" {
-#   value = "${aws_instance.beta.id}"
-# }
+  depends_on = [
+    "aws_iam_role.aws_support_access_role",
+  ]
+}
 
 #---------------------- image_id property --------------------------#
 
 # Debian
 data "aws_ami" "debian" {
   most_recent = true
-  owners      = ["679593333241"]
 
   filter {
     name   = "name"
@@ -102,7 +85,6 @@ data "aws_ami" "debian" {
 # Centos
 data "aws_ami" "centos" {
   most_recent = true
-  owners      = ["679593333241"]
 
   filter {
     name   = "name"
@@ -119,64 +101,3 @@ data "aws_ami" "centos" {
     values = ["ebs"]
   }
 }
-
-# #============================================================#
-# #                      Security Groups
-# #============================================================#
-
-
-# # Look up the default VPC and the default security group for it
-# data "aws_vpc" "default" {
-#   default = "true"
-# }
-
-
-# data "aws_security_group" "default" {
-#   vpc_id = "${data.aws_vpc.default.id}"
-#   name   = "default"
-# }
-
-
-# output "ec2_security_group_default_vpc_id" {
-#   value = "${data.aws_vpc.default.id}"
-# }
-
-
-# output "ec2_security_group_default_group_id" {
-#   value = "${data.aws_security_group.default.id}"
-# }
-
-
-# resource "aws_vpc" "non_default" {
-#   cidr_block = "172.32.0.0/16"
-# }
-
-
-# output "vpc_non_default_id" {
-#   value = "${aws_vpc.non_default.id}"
-# }
-
-
-# output "vpc_non_default_cidr_block" {
-#   value = "${aws_vpc.non_default.cidr_block}"
-# }
-
-
-# output "vpc_non_default_instance_tenancy" {
-#   value = "${aws_vpc.non_default.instance_tenancy}"
-# }
-
-
-# Create a security group with a known description
-# in the default VPC
-# resource "aws_security_group" "alpha" {
-#   name        = "alpha"
-#   description = "SG alpha"
-#   vpc_id      = "${data.aws_vpc.default.id}"
-# }
-
-
-# output "ec2_security_group_alpha_group_id" {
-#   value = "${aws_security_group.alpha.id}"
-# }
-

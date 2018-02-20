@@ -5,10 +5,6 @@ resource "aws_iam_user" "iam_master_user" {
   name = "${var.prefix}-iam-master"
 }
 
-output "iam_master_user_name" {
-  value = "${aws_iam_user.iam_master_user.name}"
-}
-
 #======================================================#
 #               IAM Master Role
 #======================================================#
@@ -39,10 +35,6 @@ resource "aws_iam_role_policy_attachment" "iam_master_role_attach" {
     "aws_iam_role.iam_master_role",
     "aws_iam_policy.iam_master_policy",
   ]
-}
-
-output "iam_master_role_name" {
-  value = "${aws_iam_role.iam_master_role.name}"
 }
 
 #======================================================#
@@ -127,8 +119,4 @@ resource "aws_iam_policy" "iam_master_policy" {
   name   = "IAM-MASTER-POLICY"
   path   = "/"
   policy = "${data.aws_iam_policy_document.iam_master_permissions_policy.json}"
-}
-
-output "iam_master_policy_name" {
-  value = "${aws_iam_policy.iam_master_policy.name}"
 }

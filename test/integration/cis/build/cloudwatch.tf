@@ -2,9 +2,9 @@
 #                  Cloudwatch Log Group For Cloudwatch Alarm
 #===========================================================================#
 
-# resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
-#   name = "${var.prefix}-cloudwatch-log-group"
-# }
+resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
+  name = "${var.prefix}-cloudwatch-log-group"
+}
 
 #===========================================================================#
 #                      SNS Topic For Cloudwatch Alarm
@@ -22,10 +22,6 @@ resource "aws_sns_topic_subscription" "metric_sns_subscription" {
   topic_arn = "${aws_sns_topic.metric_sns.arn}"
   protocol  = "sqs"
   endpoint  = "${aws_sqs_queue.sqs_metric_sns.arn}"
-}
-
-output "cloudwatch_metric_sns" {
-  value = "${aws_sns_topic.metric_sns.arn}"
 }
 
 # Contains resources and outputs related to testing the aws_cloudwatch_* resources.

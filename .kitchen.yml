@@ -31,12 +31,16 @@ suites:
     driver:
       variables:
         prefix: "cis"
+        instance_type: "t2.micro"
+        instance_key_name: "aws_key"
+        ssh_security_group_cidr: "108.30.158.75/32"
       root_module_directory: "./test/integration/cis/build/"
     verifier:
       inspec_tests:
         # - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
         - path: "./test/integration/cis/cis-aws-foundations-baseline"
-
+      # controls:
+        # - cis-aws-foundations-3.15
 
   - name: dev
     driver:
