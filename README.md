@@ -4,7 +4,9 @@ A terraform / kitchen-terraform hardening baseline the CIS AWS Foundations Bench
 
 ## Overview
 
-This will help you setup and validate an AWS VPC/ENV ...
+This will help you setup and validate an AWS Environment as per CIS AWS Benchmark. This build will not modify existing resources.
+It will modify default `default vpc` and each `default security group` as per CIS guidance.
+
 
 ### Tech Used
 - kitchen-terraform (v3.0.0)
@@ -27,6 +29,8 @@ D. Go to the 'Usage' section
 ## Usage
 
 ### Setup your Environment  
+
+Please see TESTING_AGAINST_AWS.md for details on how to setup the needed AWS accounts to perform testing.
 
 You will need to set the following env_vars for this to work.
 
@@ -56,7 +60,7 @@ Run Test kitchen
   e. `bundle exec kitchen destroy cis-setup`  
 
 
-### Notes
+### Known Issues
 
 1) AWS Simple Queue Service takes a few minutes to build, so please wait a few minutes before running `kitchen verify`.
 
