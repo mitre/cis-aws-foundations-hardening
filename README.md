@@ -24,7 +24,6 @@ C. Use the `pre-kitchen.rb` script to ensure you have all the env_vars setup as 
 ```
 ruby pre-kitchen.rb
 ```
-D. Go to the 'Usage' section  
 
 ## Usage
 
@@ -32,7 +31,17 @@ D. Go to the 'Usage' section
 
 Please see TESTING_AGAINST_AWS.md for details on how to setup the needed AWS accounts to perform testing.
 
-You will need to set the following env_vars for this to work.
+Follow these instructions carefully.
+
+1. Create an AWS account.  Make a note of the account email and root password in a secure secret storage system.
+2. Create an IAM user named `test-fixture-maker`.
+  * Enable programmatic access (to generate an access key)
+  * Note the access key and secret key ID that are generated.
+3. Create an IAM Group named `test-fixture-maker-group`.
+  * Direct-attach the policy AdministratorAccess
+  * Add user `test-fixture-maker` to the group
+
+4. Set the required env variables.
 
 - AWS_ACCESS_KEY_ID - The AWS Access Key that is ... (default: none)
 - AWS_SECRET_ACCESS_KEY ... (default: none)

@@ -38,7 +38,7 @@ Note that some tests will fail for the first day or two after you set up the acc
 
 Additionally, the first time you run the tests, you will need to accept the user agreement in the AWS marketplace for the linux AMIs we use.  You'll need to do it 4 times, once for each of debian and centos on the two accounts.
 
-### Creating the Default account
+### Creating the build/verify account
 
 Follow these instructions carefully.  Do not perform any action not specified.
 
