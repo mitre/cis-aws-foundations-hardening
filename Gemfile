@@ -2,7 +2,9 @@
 
 source 'https://rubygems.org'
 
-gem 'kitchen-terraform', "~> 3.0.0"
-gem 'test-kitchen', "~> 1.16.0"
-gem 'inspec'
+gem 'test-kitchen'
+gem 'kitchen-terraform'
+gem 'inspec', '1.51.0' #remove version pinning after json output bug is fixed
 gem 'kitchen-inspec'
+
+gem 'aws-sdk', '~> 2'

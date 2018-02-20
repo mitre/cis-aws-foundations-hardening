@@ -2,36 +2,54 @@
 driver:
   name: terraform
   variables:
-    aws_ssh_key_name: "<%= ENV['AWS_SSH_KEY_ID'] %>"
-    aws_access_key: "<%= ENV['AWS_ACCESS_KEY_ID'] %>"
-    aws_secret_key: "<%= ENV['AWS_SECRET_ACCESS_KEY'] %>"
-    aws_instance_type: "<%= ENV['AWS_DEFAULT_INSTANCE_TYPE'] %>"
-    aws_subnet_id: "<%= ENV['AWS_SUBNET_ID'] %>"
-    aws_region: "<%= ENV['AWS_REGION'] %>"
-    aws_ami_id: "<%= ENV['AWS_AMI_ID'] %>"
-    aws_security_group: "<%= ENV['AWS_SG_ID'] %>"
-  
-  root_module_directory: ./tf_build
+    access_key: "<%= ENV['AWS_ACCESS_KEY_ID'] %>"
+    secret_key: "<%= ENV['AWS_SECRET_ACCESS_KEY'] %>"
+    region: "<%= ENV['AWS_DEFAULT_REGION'] %>"
 
 provisioner:
   name: terraform
 
 platforms:
-  - name: centos-7
-
-transport:
-  name: ssh
-  ssh_key: "<%= ENV['AWS_SSH_KEY_ID'] %>"
+  - name: setup
 
 verifier:
   name: terraform
-  #format: json
-  #output: "%{platform}_%{suite}-<%= Time.now.iso8601 %>.json"
+  format: cli
+  # output: resuts.json
   groups:
-    - name: cis-aws-foundations-baseline
+    - name: default
 
 suites:
-  - name: cis-aws-foundations-baseline
+  - name: minimal
+    driver:
+      root_module_directory: "./test/integration/minimal/build/"
+    verifier:
+      inspec_tests:
+        - path: "./test/integration/minimal/verify"
 
+  - name: cis
+    driver:
+      variables:
+        prefix: "cis"
+        instance_type: "t2.micro"
+        instance_key_name: "aws_key"
+        ssh_security_group_cidr: "108.30.158.75/32"
+      root_module_directory: "./test/integration/cis/build/"
+    verifier:
+      inspec_tests:
+        # - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
+        - path: "./test/integration/cis/cis-aws-foundations-baseline"
+      # controls:
+        # - cis-aws-foundations-3.15
 
-
+  - name: dev
+    driver:
+      variables:
+        prefix: "dev"
+      root_module_directory: "./test/integration/dev/build/"
+    verifier:
+      inspec_tests:
+        # - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
+        - path: "./test/integration/cis/cis-aws-foundations-baseline"
+      controls:
+        - cis-aws-foundations-1.18
