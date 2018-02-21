@@ -6,7 +6,7 @@ driver:
     secret_key: "<%= ENV['AWS_SECRET_ACCESS_KEY'] %>"
     region: "<%= ENV['AWS_DEFAULT_REGION'] %>"
   variable_files:
-    ["./test/integration/cis/build/terraform.tfvars"]
+    - "./test/integration/cis/build/terraform.tfvars"
 
 
 provisioner:
@@ -17,8 +17,8 @@ platforms:
 
 verifier:
   name: terraform
-  format: cli
-  # output: resuts.json
+  format: json  
+  output: results2.json
   groups:
     - name: default
 
