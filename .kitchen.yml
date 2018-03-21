@@ -18,7 +18,7 @@ platforms:
 verifier:
   name: terraform
   format: json  
-  output: results2.json
+  output: aws_results.json
   groups:
     - name: default
 
@@ -38,5 +38,6 @@ suites:
       root_module_directory: "./test/integration/cis/build/"
     verifier:
       inspec_tests:
-        - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
+        # - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
+        - path: ../cis-aws-foundations-baseline/
 

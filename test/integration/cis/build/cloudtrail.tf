@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "cloudtrail_bucket_access_log_bucket" {
-  bucket_prefix = "${var.prefix}-cloudtrail_bucket_access_log_bucket-"
+  bucket_prefix = "${var.prefix}-cloudtrail-access-log-bucket-"
   force_destroy = true
   acl           = "log-delivery-write"
 }
