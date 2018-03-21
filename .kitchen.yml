@@ -34,10 +34,8 @@ suites:
     driver:
       variables:
         prefix: "cis"
-
       root_module_directory: "./test/integration/cis/build/"
+      
     verifier:
       inspec_tests:
-        # - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
-        - path: ../cis-aws-foundations-baseline/
-
+        - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
