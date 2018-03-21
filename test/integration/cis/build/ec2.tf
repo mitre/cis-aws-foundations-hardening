@@ -7,7 +7,7 @@ resource "aws_instance" "aws_support_access_instance" {
   instance_type          = "${var.instance_type}"
   vpc_security_group_ids = ["${aws_security_group.ssh.id}"]
   iam_instance_profile   = "${aws_iam_instance_profile.aws_support_access_instance_profile.name}"
-  key_name               = "${var.instance_key_name}"
+  key_name               = "${var.aws_ssh_key_id}"
 
   tags {
     Name = "${var.prefix}.aws_support_access_instance"

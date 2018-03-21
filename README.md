@@ -43,19 +43,22 @@ Follow these instructions carefully.
 
 4. Set the required env variables.
 
-- AWS_ACCESS_KEY_ID - The AWS Access Key that is ... (default: none)
-- AWS_SECRET_ACCESS_KEY ... (default: none)
-- AWS_REGION - The AWS Region you would like to use (default: us-east-1)
-
-### Provide Infrastructure Data 
-
-Provide data for the infrastructure build in the file:
-/test/integration/cis/build/terraform.tfvars
-
+- AWS Credentials
 ```
-- instance_type= "t2.micro"
-- instance_key_name= "aws_key_name"
-- ssh_security_group_cidr= "108.30.0.0/32"
+AWS_ACCESS_KEY_ID         - The AWS Access Key that is to be used (default: none)
+AWS_SECRET_ACCESS_KEY     - The AWS Secret Access Key that is to be used (default: none)
+```
+- TF_VAR_ prevents credentials from being populated on terrafrom logs
+```
+TF_VAR_aws_ssh_key_id     - The value is the name of the AWS key pair you want to use (default: none) (hide from logs)
+TF_VAR_aws_access_key     - The AWS Access Key that is to be used (default: none) (hide from logs)
+TF_VAR_aws_secret_key     - The AWS Secret Access Key that is to be used (default: none) (hide from logs)
+```
+- Infrastructure Data
+```
+AWS_DEFAULT_REGION        - The AWS Region you would like to use (default: us-east-1)
+AWS_DEFAULT_INSTANCE_TYPE - The EC2 instance type (also known as size) to use. (default: none)
+SSH_SG_CIDR               - Specify an IP address in CIDR notation, a CIDR block for ssh ingress rule. (default: none)
 ```
 
 ### Build/Verify

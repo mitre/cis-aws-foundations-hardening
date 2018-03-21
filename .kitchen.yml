@@ -2,12 +2,9 @@
 driver:
   name: terraform
   variables:
-    access_key: "<%= ENV['AWS_ACCESS_KEY_ID'] %>"
-    secret_key: "<%= ENV['AWS_SECRET_ACCESS_KEY'] %>"
     region: "<%= ENV['AWS_DEFAULT_REGION'] %>"
-  variable_files:
-    - "./test/integration/cis/build/terraform.tfvars"
-
+    instance_type: "<%= ENV['AWS_DEFAULT_INSTANCE_TYPE'] %>"
+    ssh_security_group_cidr: "<%= ENV['SSH_SG_CIDR'] %>"
 
 provisioner:
   name: terraform
@@ -35,7 +32,7 @@ suites:
       variables:
         prefix: "cis"
       root_module_directory: "./test/integration/cis/build/"
-      
+
     verifier:
       inspec_tests:
         - git: https://github.com/aaronlippold/cis-aws-foundations-baseline.git
