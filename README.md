@@ -1,6 +1,6 @@
-# cis-aws-foundations-hardening - v1.0.0
+# cis-aws-foundations-hardening - v1.1.0
 
-A terraform / kitchen-terraform hardening baseline the CIS AWS Foundations Benchmark v1.10.
+A terraform / kitchen-terraform hardening baseline the CIS AWS Foundations Benchmark v1.1.0.
 
 ## Overview
 
